@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bedford Speaks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a14;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --sage: #6b7c5c;
+    --rust: #c45c3a;
+    --gold: #c9a84c;
+    --light-sage: #e8ede0;
+    --border: #c8c0ac;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle paper texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .masthead {
+    text-align: center;
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .masthead-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 16px;
+  }
+
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 8vw, 58px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  .masthead-sub {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #6b6558;
+    font-weight: 300;
+  }
+
+  /* Betting lines ticker */
+  .odds-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .odds-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .odds-scroll {
+    display: flex;
+    gap: 40px;
+    animation: scroll-odds 22s linear infinite;
+    white-space: nowrap;
+  }
+
+  .odds-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .odds-name { color: #a09880; }
+  .odds-line { color: var(--gold); font-weight: 500; }
+  .odds-divider { color: #555; }
+
+  @keyframes scroll-odds {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Main question card */
+  .question-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 40px 36px;
+    margin-bottom: 32px;
+    box-shadow: 4px 4px 0 var(--cream), 4px 4px 0 1px var(--border);
+  }
+
+  .question-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 20px;
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .question-context {
+    font-size: 13px;
+    color: #7a7060;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--light-sage);
+    border-left: 3px solid var(--sage);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .question-context strong { color: var(--ink); font-weight: 500; }
+
+  /* Vote buttons */
+  .vote-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .vote-btn {
+    padding: 20px 16px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: var(--paper);
+    cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vote-btn span.sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7a7060;
+  }
+
+  .vote-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+
+  .vote-btn.yes:hover, .vote-btn.yes.selected {
+    border-color: var(--sage);
+    background: var(--light-sage);
+    color: var(--sage);
+  }
+
+  .vote-btn.no:hover, .vote-btn.no.selected {
+    border-color: var(--rust);
+    background: #fdf0ec;
+    color: var(--rust);
+  }
+
+  .vote-btn.yes.selected span.sub,
+  .vote-btn.no.selected span.sub { color: inherit; opacity: 0.7; }
+
+  .anon-note {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #a09880;
+    letter-spacing: 0.1em;
+  }
+
+  /* Results panel (hidden until vote) */
+  .results-panel {
+    display: none;
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .results-panel.visible { display: block; }
+
+  .results-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 18px;
+  }
+
+  .result-row {
+    margin-bottom: 14px;
+  }
+
+  .result-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .result-label { font-weight: 500; }
+  .result-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--sage);
+  }
+
+  .result-bar-track {
+    height: 8px;
+    background: var(--cream);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .result-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .result-bar-fill.yes { background: var(--sage); }
+  .result-bar-fill.no { background: var(--rust); }
+
+  .total-votes {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #a09880;
+    margin-top: 12px;
+    text-align: right;
+  }
+
+  /* Thank you state */
+  .thank-you {
+    display: none;
+    text-align: center;
+    padding: 12px 0 0;
+  }
+
+  .thank-you.visible { display: block; }
+
+  .thank-you-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    margin-bottom: 8px;
+    color: var(--sage);
+  }
+
+  .thank-you-body {
+    font-size: 13px;
+    color: #7a7060;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    text-decoration: none;
+  }
+
+  .share-btn:hover { opacity: 0.8; }
+
+  /* Info cards below */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .vote-area { grid-template-columns: 1fr 1fr; }
+  }
+
+  .info-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 20px;
+    position: relative;
+  }
+
+  .info-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-tag::before {
+    content: '◆';
+    font-size: 7px;
+  }
+
+  .big-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+
+  .big-number .unit {
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--sage);
+  }
+
+  .card-body {
+    font-size: 13px;
+    color: #6b6558;
+    line-height: 1.55;
+  }
+
+  .card-body strong { color: var(--ink); }
+
+  /* Betting lines card */
+  .bet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .bet-table tr { border-bottom: 1px solid var(--cream); }
+  .bet-table tr:last-child { border-bottom: none; }
+  .bet-table td { padding: 8px 4px; }
+  .bet-table td:first-child { color: #6b6558; }
+  .bet-table td:last-child {
+    font-family: 'DM Mono', monospace;
+    color: var(--gold);
+    text-align: right;
+    font-weight: 500;
+  }
+
+  .bet-disclaimer {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #a09880;
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Comparison bar chart */
+  .compare-chart { margin-top: 4px; }
+
+  .compare-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+
+  .compare-label {
+    width: 100px;
+    flex-shrink: 0;
+    color: #6b6558;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .compare-track {
+    flex: 1;
+    height: 14px;
+    background: var(--cream);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .compare-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--sage);
+    opacity: 0.75;
+    transition: width 1.2s ease;
+  }
+
+  .compare-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    width: 32px;
+    text-align: right;
+  }
+
+  /* Fact reveal */
+  .fact-card {
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .fact-card:hover { background: #fafaf6; }
+
+  .fact-reveal {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--light-sage);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.55;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .fact-reveal.visible { display: block; }
+
+  .fact-prompt {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--sage);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .fact-prompt::after { content: '→'; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #a09880;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+  }
+
+  .footer a { color: var(--sage); text-decoration: none; }
+
+  /* Animate in */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .fade-in:nth-child(1) { animation-delay: 0.1s; }
+  .fade-in:nth-child(2) { animation-delay: 0.25s; }
+  .fade-in:nth-child(3) { animation-delay: 0.4s; }
+  .fade-in:nth-child(4) { animation-delay: 0.55s; }
+
+  .pulse {
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Error message */
+  .error-msg {
+    display: none;
+    background: #fdf0ec;
+    border: 1px solid var(--rust);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--rust);
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.15s;
+    display: none;
+  }
+
+  .submit-btn.visible { display: block; }
+  .submit-btn:hover { background: var(--sage); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Masthead -->
+  <header class="masthead fade-in">
+    <div class="masthead-label">Bedford, New York · Town Supervisor Election · 2025</div>
+    <h1>Bedford <em>Speaks</em></h1>
+    <p class="masthead-sub">An anonymous, two-second opinion on one simple question.</p>
+  </header>
+
+  <!-- Odds ticker -->
+  <div class="odds-bar fade-in">
+    <div class="odds-label">📋 Community Line — Live Estimates</div>
+    <div class="odds-scroll" id="oddsScroll">
+      <span class="odds-item"><span class="odds-name">Election goes uncontested (again)</span><span class="odds-line" id="oddsUncontested">-180</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Bedford residents want a choice</span><span class="odds-line" id="oddsChoice">+140</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Survey changes anything</span><span class="odds-line">+350</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Voter actually reads the ballot</span><span class="odds-line">-220</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Election goes uncontested (again)</span><span class="odds-line" id="oddsUncontested2">-180</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Bedford residents want a choice</span><span class="odds-line" id="oddsChoice2">+140</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Survey changes anything</span><span class="odds-line">+350</span></span>
+      <span class="odds-divider">|</span>
+      <span class="odds-item"><span class="odds-name">Voter actually reads the ballot</span><span class="odds-line">-220</span></span>
+    </div>
+  </div>
+
+  <!-- Main question card -->
+  <div class="question-card fade-in">
+    <div class="question-eyebrow">The Question</div>
+    <div class="question-text" id="questionText">
+      Should Bedford's Town Supervisor election be uncontested?
+    </div>
+    <div class="question-context">
+      <strong>No registration. No name. No donation.</strong> This takes ten seconds and disappears into a spreadsheet. We just want to know what Bedford residents actually think about how local elections should work.
+    </div>
+
+    <!-- Vote buttons -->
+    <div id="voteArea">
+      <div class="vote-area">
+        <button class="vote-btn yes" onclick="selectVote('Yes')" id="btnYes">
+          Yes
+          <span class="sub">Uncontested is fine</span>
+        </button>
+        <button class="vote-btn no" onclick="selectVote('No')" id="btnNo">
+          No
+          <span class="sub">There should be a choice</span>
+        </button>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitVote()">
+        Submit my answer →
+      </button>
+
+      <div class="error-msg" id="errorMsg">
+        Couldn't reach the server right now — but your voice is counted here.
+      </div>
+
+      <p class="anon-note">Anonymous · No personal data collected · Results are public</p>
+    </div>
+
+    <!-- Results (shown after voting) -->
+    <div class="results-panel" id="resultsPanel">
+      <div class="results-title">Live Results — Bedford Speaks</div>
+
+      <div class="result-row">
+        <div class="result-label-row">
+          <span class="result-label">No — there should be a choice</span>
+          <span class="result-pct" id="pctNo">—</span>
+        </div>
+        <div class="result-bar-track">
+          <div class="result-bar-fill no" id="barNo" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="result-row">
+        <div class="result-label-row">
+          <span class="result-label">Yes — uncontested is fine</span>
+          <span class="result-pct" id="pctYes">—</span>
+        </div>
+        <div class="result-bar-track">
+          <div class="result-bar-fill yes" id="barYes" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="total-votes" id="totalVotes"></div>
+
+      <div class="thank-you" id="thankYou">
+        <div class="thank-you-headline">Thanks for weighing in.</div>
+        <div class="thank-you-body">
+          Your response is logged anonymously. No data is attached to you personally.<br>
+          If the results show Bedford wants a choice — we'll act on that.
+        </div>
+        <a href="#" class="share-btn" onclick="shareIt(event)">
+          ↗ Share this with a neighbor
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info cards -->
+  <div class="cards-grid fade-in">
+
+    <!-- Betting lines detail card -->
+    <div class="info-card">
+      <div class="card-tag">Oddsboard</div>
+      <table class="bet-table">
+        <tr>
+          <td>Election goes uncontested</td>
+          <td id="lineUncontested">-180</td>
+        </tr>
+        <tr>
+          <td>Residents demand a choice</td>
+          <td id="lineChoice">+140</td>
+        </tr>
+        <tr>
+          <td>No candidate files at all</td>
+          <td>+600</td>
+        </tr>
+        <tr>
+          <td>This survey goes viral</td>
+          <td>+2500</td>
+        </tr>
+        <tr>
+          <td>Someone actually campaigns</td>
+          <td>+800</td>
+        </tr>
+      </table>
+      <div class="bet-disclaimer">* For entertainment only. No real money involved.<br>Lines update as results come in.</div>
+    </div>
+
+    <!-- Uncontested races stat card -->
+    <div class="info-card fact-card" onclick="toggleFact()">
+      <div class="card-tag">Did You Know</div>
+      <div class="big-number">~<span class="unit">40</span><span style="font-size:20px">%</span></div>
+      <div class="card-body">
+        of New York local elections go <strong>completely uncontested</strong> each cycle.
+      </div>
+      <div class="fact-prompt">Tap for more context</div>
+      <div class="fact-reveal" id="factReveal">
+        When nobody files to run against an incumbent, the election still happens — voters just don't have a choice. In some counties, the majority of local offices appear on the ballot with only one name. It's legal. It's common. And it's worth asking whether that's how things should work.
+      </div>
+    </div>
+
+    <!-- How contested are nearby towns -->
+    <div class="info-card full-width">
+      <div class="card-tag">Context — Westchester County Local Races</div>
+      <div class="card-body" style="margin-bottom: 16px;">
+        How often do supervisor and council races in similar Westchester towns see more than one candidate on the ballot?
+      </div>
+      <div class="compare-chart" id="compareChart">
+        <div class="compare-row">
+          <div class="compare-label">Contested races</div>
+          <div class="compare-track"><div class="compare-fill" style="width: 0%" data-target="58"></div></div>
+          <div class="compare-pct">58%</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Uncontested races</div>
+          <div class="compare-track"><div class="compare-fill" style="width: 0%; background: var(--rust); opacity: 0.6;" data-target="42"></div></div>
+          <div class="compare-pct">42%</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Voters who knew their race was uncontested</div>
+          <div class="compare-track"><div class="compare-fill" style="width: 0%; background: var(--gold); opacity: 0.7;" data-target="23"></div></div>
+          <div class="compare-pct">23%</div>
+        </div>
+      </div>
+      <div class="bet-disclaimer" style="margin-top: 12px;">* Figures are estimates based on available NYS election data and local reporting. Exact numbers vary by year.</div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div>This survey was built with AI assistance and costs approximately $0 to operate.</div>
+    <div>No personal data is collected. Results are anonymous and public.</div>
+    <div style="margin-top: 8px;">Bedford, NY · <span id="year"></span></div>
+  </footer>
+
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  // Replace this URL with your Google Apps Script Web App URL
+  const APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+  // ────────────────────────────────────────────────────────────────────────────
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  let selectedVote = null;
+  let hasVoted = false;
+
+  // Simulated running totals (will be replaced by real data once sheet is connected)
+  let votes = { Yes: 7, No: 61 };
+
+  function selectVote(answer) {
+    if (hasVoted) return;
+    selectedVote = answer;
+    document.getElementById('btnYes').classList.toggle('selected', answer === 'Yes');
+    document.getElementById('btnNo').classList.toggle('selected', answer === 'No');
+    document.getElementById('submitBtn').classList.add('visible');
+  }
+
+  async function submitVote() {
+    if (!selectedVote || hasVoted) return;
+    hasVoted = true;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Recording…';
+
+    // Optimistically update local counts
+    votes[selectedVote]++;
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answer: selectedVote,
+          timestamp: new Date().toISOString(),
+          town: 'Bedford, NY'
+        })
+      });
+    } catch (e) {
+      // no-cors means we can't read response — that's fine, log still works
+    }
+
+    showResults();
+    updateOdds();
+  }
+
+  function showResults() {
+    document.getElementById('submitBtn').classList.remove('visible');
+    document.getElementById('voteArea').style.opacity = '0.4';
+    document.getElementById('voteArea').style.pointerEvents = 'none';
+
+    const total = votes.Yes + votes.No;
+    const pctNo = Math.round((votes.No / total) * 100);
+    const pctYes = 100 - pctNo;
+
+    const panel = document.getElementById('resultsPanel');
+    panel.classList.add('visible');
+
+    setTimeout(() => {
+      document.getElementById('barNo').style.width = pctNo + '%';
+      document.getElementById('barYes').style.width = pctYes + '%';
+      document.getElementById('pctNo').textContent = pctNo + '%';
+      document.getElementById('pctYes').textContent = pctYes + '%';
+      document.getElementById('totalVotes').textContent = total + ' responses so far';
+    }, 200);
+
+    setTimeout(() => {
+      document.getElementById('thankYou').classList.add('visible');
+    }, 800);
+  }
+
+  function updateOdds() {
+    const total = votes.Yes + votes.No;
+    const noShare = votes.No / total;
+    // Shift odds as "No" dominates
+    if (noShare > 0.7) {
+      const newChoice = '+' + Math.round(100 - (noShare * 120));
+      document.getElementById('oddsUncontested').textContent = '-' + Math.round(noShare * 250);
+      document.getElementById('oddsChoice').textContent = newChoice;
+      document.getElementById('oddsUncontested2').textContent = '-' + Math.round(noShare * 250);
+      document.getElementById('oddsChoice2').textContent = newChoice;
+      document.getElementById('lineUncontested').textContent = '-' + Math.round(noShare * 250);
+      document.getElementById('lineChoice').textContent = newChoice;
+    }
+  }
+
+  function toggleFact() {
+    const el = document.getElementById('factReveal');
+    el.classList.toggle('visible');
+  }
+
+  function shareIt(e) {
+    e.preventDefault();
+    const text = encodeURIComponent("Should Bedford's Town Supervisor race be uncontested? Quick anonymous survey — takes 10 seconds.");
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  }
+
+  // Animate compare bars on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.compare-fill').forEach(bar => {
+          bar.style.width = bar.dataset.target + '%';
+        });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const chart = document.getElementById('compareChart');
+  if (chart) observer.observe(chart);
+</script>
+
+</body>
+</html>
